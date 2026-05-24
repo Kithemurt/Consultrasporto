@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Consultrasporto</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-wrapper">
+
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">SF</div>
+      <div>
+        <div class="logo-text">Consultrasporto</div>
+        <div class="logo-sub">Scadenziario Formazione</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Principale</div>
+      <a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="lavoratori.html" class="nav-link"><span class="nav-icon">👷</span> Lavoratori</a>
+      <a href="corsi.html" class="nav-link"><span class="nav-icon">📚</span> Corsi di Formazione</a>
+      <a href="visite.html" class="nav-link"><span class="nav-icon">🏥</span> Visite Mediche</a>
+      <a href="scadenze.html" class="nav-link"><span class="nav-icon">📅</span> Scadenziario</a>
+      <div class="sidebar-section" style="margin-top:.5rem">Analisi</div>
+      <a href="report.html" class="nav-link"><span class="nav-icon">📊</span> Report</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 · D.Lgs. 81/08</div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle btn" id="sidebar-toggle">☰</button>
+      <div class="topbar-title">Dashboard</div>
+      <a href="scadenze.html" id="topbar-alert" style="display:none;text-decoration:none">
+        <span class="topbar-badge" id="alert-count">0</span>
+        <span style="font-size:.82rem;color:var(--text-muted);margin-left:.3rem">scadenze imminenti</span>
+      </a>
+      <div class="topbar-user">
+        <div class="topbar-avatar">CT</div>
+        <span>Admin</span>
+      </div>
+    </header>
+
+    <main class="content-inner">
+
+      <div class="page-header">
+        <div>
+          <h2>Dashboard</h2>
+          <p>Riepilogo scadenze formazione e sorveglianza sanitaria</p>
+        </div>
+        <div class="btn-group">
+          <a href="lavoratori.html" class="btn btn-outline btn-sm">+ Lavoratore</a>
+          <a href="corsi.html" class="btn btn-primary btn-sm">+ Corso</a>
+        </div>
+      </div>
+
+      <!-- KPI cards -->
+      <div class="stat-grid mb-3" id="kpi-grid">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Alerts -->
+      <div id="alert-section" class="mb-3"></div>
+
+      <!-- Two columns: imminenti + scaduti -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem" class="two-cols">
+
+        <!-- Scadenze imminenti -->
+        <div class="card">
+          <div class="card-header">
+            <h3>⚠️ Scadenze nei prossimi 90 giorni</h3>
+            <a href="scadenze.html" class="btn btn-ghost btn-sm">Vedi tutto →</a>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="tbl-imminenti">
+              <thead>
+                <tr>
+                  <th>Lavoratore</th>
+                  <th>Tipo</th>
+                  <th>Scadenza</th>
+                  <th>Stato</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-imminenti">
+                <tr class="table-empty"><td colspan="4">Caricamento…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Riepilogo per reparto -->
+        <div class="card">
+          <div class="card-header">
+            <h3>📊 Stato complessivo formazione</h3>
+          </div>
+          <div class="card-body">
+            <div id="chart-stato" style="display:flex;flex-direction:column;gap:1rem"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scaduti recenti -->
+      <div class="card mt-3">
+        <div class="card-header">
+          <h3>🔴 Scaduti negli ultimi 30 giorni</h3>
+          <span class="badge badge-danger" id="scaduti-count">0</span>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Lavoratore</th>
+                <th>Corso / Visita</th>
+                <th>Data scadenza</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-scaduti">
+              <tr class="table-empty"><td colspan="3">Nessuna scadenza recente</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div><!-- end main-content -->
+</div><!-- end app-wrapper -->
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  renderKPI();
+  renderImminenti();
+  renderScadutiRecenti();
+  renderChartStato();
+});
+
+function renderKPI() {
+  const s = DB.getStats();
+  const imm = DB.getScadenzeImminenti(60).length;
+
+  document.getElementById('kpi-grid').innerHTML = `
+    <div class="stat-card primary">
+      <div class="stat-icon">👷</div>
+      <div class="stat-body">
+        <div class="stat-value">${s.lavoratori}</div>
+        <div class="stat-label">Lavoratori attivi</div>
+      </div>
+    </div>
+    <div class="stat-card success">
+      <div class="stat-icon">✅</div>
+      <div class="stat-body">
+        <div class="stat-value">${s.corsiValidi + s.visiteValide}</div>
+        <div class="stat-label">Certificazioni valide</div>
+      </div>
+    </div>
+    <div class="stat-card warning">
+      <div class="stat-icon">⚠️</div>
+      <div class="stat-body">
+        <div class="stat-value">${s.corsiInScadenza + s.visiteInScadenza}</div>
+        <div class="stat-label">In scadenza (60 gg)</div>
+      </div>
+    </div>
+    <div class="stat-card danger">
+      <div class="stat-icon">🔴</div>
+      <div class="stat-body">
+        <div class="stat-value">${s.corsiScaduti + s.visiteScadute}</div>
+        <div class="stat-label">Scaduti (da rinnovare)</div>
+      </div>
+    </div>
+  `;
+
+  if (imm > 0) {
+    document.getElementById('topbar-alert').style.display = 'flex';
+    document.getElementById('alert-count').textContent = imm;
+  }
+
+  if (s.corsiScaduti + s.visiteScadute > 0) {
+    document.getElementById('alert-section').innerHTML = `
+      <div class="alert alert-danger">
+        ⚠️ <strong>${s.corsiScaduti + s.visiteScadute} certificazioni scadute</strong> richiedono attenzione immediata.
+        <a href="scadenze.html" style="margin-left:.5rem;font-weight:700">Vedi scadenze →</a>
+      </div>`;
+  }
+}
+
+function renderImminenti() {
+  const items = DB.getScadenzeImminenti(90).slice(0, 10);
+  const tbody = document.getElementById('tbody-imminenti');
+  if (!items.length) {
+    tbody.innerHTML = '<tr class="table-empty"><td colspan="4">Nessuna scadenza nei prossimi 90 giorni 🎉</td></tr>';
+    return;
+  }
+  tbody.innerHTML = items.map(it => `
+    <tr>
+      <td><strong>${it.lavoratore}</strong></td>
+      <td>${tipoBadge(it.tipo)} <span class="text-sm">${it.tipoLabel}</span></td>
+      <td>${fmtDate(it.dataScadenza)}<br><span class="text-xs text-muted">${daysLabel(it.giorni)}</span></td>
+      <td>${statusBadge(it.status)}</td>
+    </tr>`).join('');
+}
+
+function renderScadutiRecenti() {
+  const items = DB.getScadutiRecenti();
+  document.getElementById('scaduti-count').textContent = items.length;
+  const tbody = document.getElementById('tbody-scaduti');
+  if (!items.length) {
+    tbody.innerHTML = '<tr class="table-empty"><td colspan="3">Nessuna scadenza recente ✅</td></tr>';
+    return;
+  }
+  tbody.innerHTML = items.map(it => `
+    <tr>
+      <td><strong>${it.lavoratore}</strong></td>
+      <td>${it.label}</td>
+      <td><span style="color:var(--danger);font-weight:600">${fmtDate(it.dataScadenza)}</span></td>
+    </tr>`).join('');
+}
+
+function renderChartStato() {
+  const s = DB.getStats();
+  const totalCorsi = s.corsiValidi + s.corsiInScadenza + s.corsiScaduti || 1;
+  const totalVisite = s.visiteValide + s.visiteInScadenza + s.visiteScadute || 1;
+
+  const bar = (label, val, tot, color) => {
+    const pct = Math.round((val / tot) * 100);
+    return `
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;font-size:.85rem">
+          <span>${label}</span><strong>${val}</strong>
+        </div>
+        <div class="progress">
+          <div class="progress-bar ${color}" style="width:${pct}%"></div>
+        </div>
+      </div>`;
+  };
+
+  document.getElementById('chart-stato').innerHTML = `
+    <div style="font-size:.8rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.25rem">Corsi di Formazione</div>
+    ${bar('✅ Validi', s.corsiValidi, totalCorsi, 'bg-success')}
+    ${bar('⚠️ In scadenza', s.corsiInScadenza, totalCorsi, 'bg-warning')}
+    ${bar('🔴 Scaduti', s.corsiScaduti, totalCorsi, 'bg-danger')}
+    <div style="font-size:.8rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.25rem;margin-top:.75rem">Visite Mediche</div>
+    ${bar('✅ Valide', s.visiteValide, totalVisite, 'bg-success')}
+    ${bar('⚠️ In scadenza', s.visiteInScadenza, totalVisite, 'bg-warning')}
+    ${bar('🔴 Scadute', s.visiteScadute, totalVisite, 'bg-danger')}
+  `;
+}
+</script>
+<style>
+@media (max-width: 700px) {
+  .two-cols { grid-template-columns: 1fr !important; }
+}
+</style>
+</body>
+</html>

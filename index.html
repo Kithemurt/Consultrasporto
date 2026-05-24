@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consultrasporto | Scadenziario Formazione D.Lgs. 81/08</title>
+  <meta name="description" content="Gestisci le scadenze di formazione e visite mediche dei tuoi lavoratori in modo semplice e digitale, secondo il D.Lgs. 81/08.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { background: #fff; }
+    .lnav-mobile-links { display: none; background: #fff; padding: .75rem 1.25rem 1rem; border-bottom: 1px solid var(--border); }
+    .lnav-mobile-links.open { display: flex; flex-direction: column; gap: .5rem; }
+    .lnav-mobile-links a { font-size: .95rem; color: var(--text-muted); padding: .4rem 0; }
+  </style>
+</head>
+<body class="landing">
+
+<!-- Navbar -->
+<nav class="lnav">
+  <a href="index.html" class="lnav-brand" style="text-decoration:none">
+    <div class="lnav-logo-mark">SF</div>
+    <div>
+      <div class="lnav-name">Consultrasporto</div>
+      <div class="lnav-sub">Scadenziario Formazione</div>
+    </div>
+  </a>
+  <div class="lnav-links">
+    <a href="#funzioni">Funzioni</a>
+    <a href="#come-funziona">Come funziona</a>
+    <a href="#prezzi">Prezzi</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <div class="lnav-actions">
+    <a href="dashboard.html" class="btn btn-ghost btn-sm">Accedi</a>
+    <a href="dashboard.html" class="btn btn-primary btn-sm">Prova gratis 14 giorni</a>
+  </div>
+  <button class="lnav-mobile-menu" onclick="document.getElementById('mobile-menu').classList.toggle('open')" aria-label="Menu">☰</button>
+</nav>
+<div id="mobile-menu" class="lnav-mobile-links">
+  <a href="#funzioni">Funzioni</a>
+  <a href="#come-funziona">Come funziona</a>
+  <a href="#prezzi">Prezzi</a>
+  <a href="#faq">FAQ</a>
+  <a href="dashboard.html" class="btn btn-primary btn-sm" style="margin-top:.4rem;text-align:center">Prova gratis</a>
+</div>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">🇮🇹 Conforme D.Lgs. 81/08 — Testo Unico Sicurezza</div>
+    <h1>Gestisci le scadenze di formazione dei tuoi <span>lavoratori senza stress</span></h1>
+    <p class="hero-sub">Lo strumento digitale per tenere sotto controllo corsi obbligatori, attestati e visite mediche — senza Excel, senza errori, senza sanzioni.</p>
+    <div class="hero-actions">
+      <a href="dashboard.html" class="btn btn-primary btn-lg">🚀 Inizia gratis — 14 giorni</a>
+      <a href="#come-funziona" class="btn btn-outline btn-lg">▶ Guarda come funziona</a>
+    </div>
+
+    <!-- Mini mockup screenshot -->
+    <div class="hero-screen">
+      <div class="screen-bar">
+        <div class="screen-dot" style="background:#ff5f57"></div>
+        <div class="screen-dot" style="background:#febc2e"></div>
+        <div class="screen-dot" style="background:#28c840"></div>
+        <span style="color:rgba(255,255,255,.4);font-size:.75rem;margin-left:.5rem">consultrasporto.it/dashboard</span>
+      </div>
+      <div class="screen-inner">
+        <div class="screen-card c-primary">
+          <div class="screen-card-val">10</div>
+          <div class="screen-card-lbl">👷 Lavoratori attivi</div>
+        </div>
+        <div class="screen-card c-success">
+          <div class="screen-card-val">8</div>
+          <div class="screen-card-lbl">✅ Corsi validi</div>
+        </div>
+        <div class="screen-card c-warning">
+          <div class="screen-card-val">4</div>
+          <div class="screen-card-lbl">⚠️ In scadenza (60gg)</div>
+        </div>
+        <div class="screen-card c-danger">
+          <div class="screen-card-val">3</div>
+          <div class="screen-card-lbl">🔴 Scaduti</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div>
+        <span class="hero-stat-value">500+</span>
+        <span class="hero-stat-label">Aziende che ci fidano</span>
+      </div>
+      <div>
+        <span class="hero-stat-value">20.000+</span>
+        <span class="hero-stat-label">Lavoratori gestiti</span>
+      </div>
+      <div>
+        <span class="hero-stat-value">98%</span>
+        <span class="hero-stat-label">Tasso conformità raggiunto</span>
+      </div>
+      <div>
+        <span class="hero-stat-value">0€</span>
+        <span class="hero-stat-label">Per 14 giorni di prova</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section" id="funzioni">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Funzionalità</div>
+      <h2>Tutto quello che ti serve per la <br>conformità D.Lgs. 81/08</h2>
+      <p>Una piattaforma completa per gestire la sicurezza sul lavoro in modo digitale e senza errori.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📅</div>
+        <h3>Scadenziario automatico</h3>
+        <p>Visualizza in tempo reale tutte le scadenze di corsi, attestati e visite mediche. Colori chiari per distinguere subito valido, in scadenza e scaduto.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">👷</div>
+        <h3>Gestione lavoratori</h3>
+        <p>Profila ogni dipendente con mansione, reparto e fattori di rischio. Associa automaticamente i corsi obbligatori in base al ruolo e al livello di rischio.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📚</div>
+        <h3>Corsi di formazione</h3>
+        <p>Registra tutti i corsi obbligatori (formazione generale, specifica, antincendio, primo soccorso, carrelli elevatori, lavori in quota e altro).</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏥</div>
+        <h3>Sorveglianza sanitaria</h3>
+        <p>Traccia visite mediche periodiche, preventive e straordinarie con giudizi di idoneità. Avvisi automatici prima della scadenza per non perdere nemmeno una visita.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <h3>Avvisi scadenze imminenti</h3>
+        <p>Dashboard con lista delle scadenze nei prossimi 30, 60 e 90 giorni. Niente sanzioni, niente sorprese: sei sempre informato con anticipo.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Report e statistiche</h3>
+        <p>Genera report dettagliati per audit, ispezioni e controlli interni. Grafici e KPI per monitorare lo stato di conformità di tutta l'azienda a colpo d'occhio.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="section section-alt" id="come-funziona">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Come funziona</div>
+      <h2>Operativo in pochi minuti</h2>
+      <p>Nessuna installazione, nessuna configurazione complessa. Tre semplici passi.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Inserisci i lavoratori</h3>
+        <p>Carica l'anagrafica dei tuoi dipendenti con mansione, reparto e rischi lavorativi associati. Importazione da Excel disponibile.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Registra formazione e visite</h3>
+        <p>Aggiungi corsi frequentati e visite mediche con date, attestati e durata. Il sistema calcola automaticamente le scadenze.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Monitora e ricevi avvisi</h3>
+        <p>La dashboard mostra in tempo reale tutto ciò che scade. Ricevi notifiche in anticipo e pianifica i rinnovi con calma.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Testimonial</div>
+      <h2>Cosa dicono i nostri clienti</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">"Finalmente ho smesso di usare Excel con formule manuali. In 10 minuti avevo caricato tutti i miei 35 dipendenti e vedevo già chi aveva la formazione in scadenza. Strumento eccellente."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">GP</div>
+          <div>
+            <div class="testimonial-name">Giovanni Pellegrini</div>
+            <div class="testimonial-role">RSPP — Trasporti Pellegrini Srl</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">"Durante un'ispezione dell'ASL ho aperto la dashboard e ho mostrato in tempo reale lo stato di tutti i lavoratori. L'ispettore è rimasto colpito dall'ordine e dalla tracciabilità."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">ML</div>
+          <div>
+            <div class="testimonial-name">Monica Lazzari</div>
+            <div class="testimonial-role">HR Manager — LogiMed Spa</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">"Gestisco la sicurezza per 3 aziende diverse. Con questo strumento ho tutto sotto controllo: scadenze, attestati, visite. Non tornerei mai al vecchio sistema cartaceo."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">AS</div>
+          <div>
+            <div class="testimonial-name">Andrea Strozzi</div>
+            <div class="testimonial-role">Consulente Sicurezza — Studio Strozzi</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section class="section section-alt" id="prezzi">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Prezzi</div>
+      <h2>Semplice e trasparente</h2>
+      <p>Nessun costo nascosto. Annulla in qualsiasi momento. 14 giorni di prova gratuita su tutti i piani.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <h3>Starter</h3>
+        <p class="pricing-desc">Per piccole realtà e studi professionali</p>
+        <div class="pricing-price"><sup>€</sup>29</div>
+        <div class="pricing-period">al mese + IVA · fino a 20 lavoratori</div>
+        <ul class="pricing-features">
+          <li>Fino a 20 lavoratori</li>
+          <li>Scadenziario corsi e visite</li>
+          <li>Dashboard riepilogativa</li>
+          <li>Export PDF report</li>
+          <li>Supporto email</li>
+        </ul>
+        <a href="dashboard.html" class="btn btn-outline w-100" style="justify-content:center">Inizia prova gratuita</a>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-badge">Più popolare</div>
+        <h3>Business</h3>
+        <p class="pricing-desc">Per PMI e aziende in crescita</p>
+        <div class="pricing-price"><sup>€</sup>59</div>
+        <div class="pricing-period">al mese + IVA · fino a 100 lavoratori</div>
+        <ul class="pricing-features">
+          <li>Fino a 100 lavoratori</li>
+          <li>Tutto di Starter</li>
+          <li>Notifiche email automatiche</li>
+          <li>Reparti e mansioni personalizzate</li>
+          <li>Import da Excel</li>
+          <li>Supporto prioritario</li>
+        </ul>
+        <a href="dashboard.html" class="btn btn-primary w-100" style="justify-content:center">Inizia prova gratuita</a>
+      </div>
+      <div class="pricing-card">
+        <h3>Enterprise</h3>
+        <p class="pricing-desc">Per grandi aziende e gruppi</p>
+        <div class="pricing-price"><sup>€</sup>149</div>
+        <div class="pricing-period">al mese + IVA · lavoratori illimitati</div>
+        <ul class="pricing-features">
+          <li>Lavoratori illimitati</li>
+          <li>Tutto di Business</li>
+          <li>Multi-sede e multi-azienda</li>
+          <li>API e integrazioni</li>
+          <li>SSO (Single Sign-On)</li>
+          <li>Account manager dedicato</li>
+          <li>SLA garantito 99.9%</li>
+        </ul>
+        <a href="dashboard.html" class="btn btn-outline w-100" style="justify-content:center">Contattaci</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">FAQ</div>
+      <h2>Domande frequenti</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Cosa include la prova gratuita di 14 giorni? <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">La prova gratuita include accesso completo a tutte le funzionalità del piano Business per 14 giorni, senza inserire dati di pagamento. Al termine puoi scegliere il piano più adatto o smettere di usarlo senza costi.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          I dati sono al sicuro? Dove vengono conservati? <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">I tuoi dati vengono conservati su server certificati ISO 27001 in Europa (UE). Rispettiamo pienamente il GDPR. I backup vengono eseguiti quotidianamente e i dati sono crittografati sia in transito che a riposo.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Posso importare i dati da Excel o da un altro software? <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">Sì. I piani Business ed Enterprise includono l'importazione da file Excel/CSV. Per importazioni massive o da altri software gestionali, il nostro team di supporto ti guida nel processo di migrazione senza costi aggiuntivi.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Quali corsi D.Lgs. 81/08 posso tracciare? <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">Puoi tracciare tutti i corsi previsti dal Testo Unico: formazione generale e specifica, antincendio (basso/medio/alto rischio), primo soccorso (gruppo A/B/C), carrelli elevatori, PLE, lavori in quota, ponteggi, formazione preposti e dirigenti, RLS e molto altro. Puoi anche aggiungere corsi personalizzati.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Come funzionano le notifiche di scadenza? <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">Il sistema invia notifiche email automatiche (piano Business+) a 90, 60 e 30 giorni prima della scadenza. La dashboard mostra sempre in tempo reale la situazione aggiornata, con filtri per periodo e tipo di scadenza.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Posso usarlo per più sedi o più aziende? <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">Sì, il piano Enterprise supporta la gestione di più sedi e più aziende da un'unica interfaccia, con profili utente separati e report consolidati. Ideale per consulenti della sicurezza che gestiscono più clienti.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Banner -->
+<section class="section" style="padding-top:0">
+  <div class="cta-banner">
+    <h2>Inizia oggi a gestire le scadenze in modo smart</h2>
+    <p>Nessuna carta di credito richiesta. 14 giorni gratis. Configurazione in 5 minuti.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+      <a href="dashboard.html" class="btn btn-white btn-lg">🚀 Prova gratis — è semplice</a>
+      <a href="mailto:info@consultrasporto.it" class="btn btn-lg" style="background:rgba(255,255,255,.15);color:#fff;border:2px solid rgba(255,255,255,.4)">📧 Parla con noi</a>
+    </div>
+    <p style="margin-top:1.25rem;font-size:.82rem;opacity:.7">✓ Nessuna carta di credito &nbsp;&nbsp; ✓ GDPR compliant &nbsp;&nbsp; ✓ Dati su server EU &nbsp;&nbsp; ✓ Cancella quando vuoi</p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="landing-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div style="display:flex;align-items:center;gap:.65rem">
+          <div class="lnav-logo-mark" style="width:34px;height:34px;font-size:.95rem">SF</div>
+          <div class="logo-text">Consultrasporto</div>
+        </div>
+        <p>Scadenziario Formazione D.Lgs. 81/08 — La piattaforma italiana per la gestione digitale della sicurezza sul lavoro e della sorveglianza sanitaria.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Prodotto</h4>
+        <ul>
+          <li><a href="#funzioni">Funzionalità</a></li>
+          <li><a href="#prezzi">Prezzi</a></li>
+          <li><a href="#come-funziona">Come funziona</a></li>
+          <li><a href="dashboard.html">Prova gratis</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Risorse</h4>
+        <ul>
+          <li><a href="#">Guida utente</a></li>
+          <li><a href="#">D.Lgs. 81/08</a></li>
+          <li><a href="#">Tabella scadenze</a></li>
+          <li><a href="#">Blog sicurezza</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Azienda</h4>
+        <ul>
+          <li><a href="#">Chi siamo</a></li>
+          <li><a href="#">Contatti</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Termini di servizio</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Consultrasporto S.r.l. — P.IVA 12345678901 — Tutti i diritti riservati</span>
+      <div style="display:flex;gap:1rem">
+        <a href="#">Privacy</a>
+        <a href="#">Cookie</a>
+        <a href="#">Termini</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  item.classList.toggle('open');
+}
+</script>
+</body>
+</html>

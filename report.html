@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report — Consultrasporto</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .bar-chart { display: flex; flex-direction: column; gap: .85rem; }
+    .bar-row { display: flex; align-items: center; gap: .75rem; }
+    .bar-label { width: 160px; font-size: .82rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
+    .bar-track { flex: 1; background: var(--border); border-radius: 999px; height: 20px; position: relative; overflow: hidden; display: flex; }
+    .bar-seg { height: 100%; transition: width .5s ease; }
+    .bar-row-val { width: 36px; text-align: right; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+    @media print {
+      .sidebar, .topbar, .btn, .no-print { display: none !important; }
+      .main-content { margin-left: 0; padding-top: 0; }
+      .content-inner { padding: 0; }
+      body { background: #fff; }
+      .card { box-shadow: none; border: 1px solid #ddd; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">SF</div>
+      <div><div class="logo-text">Consultrasporto</div><div class="logo-sub">Scadenziario Formazione</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Principale</div>
+      <a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="lavoratori.html" class="nav-link"><span class="nav-icon">👷</span> Lavoratori</a>
+      <a href="corsi.html" class="nav-link"><span class="nav-icon">📚</span> Corsi di Formazione</a>
+      <a href="visite.html" class="nav-link"><span class="nav-icon">🏥</span> Visite Mediche</a>
+      <a href="scadenze.html" class="nav-link"><span class="nav-icon">📅</span> Scadenziario</a>
+      <div class="sidebar-section" style="margin-top:.5rem">Analisi</div>
+      <a href="report.html" class="nav-link"><span class="nav-icon">📊</span> Report</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 · D.Lgs. 81/08</div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle btn" id="sidebar-toggle">☰</button>
+      <div class="topbar-title">Report</div>
+      <button class="btn btn-outline btn-sm no-print" onclick="window.print()">🖨️ Stampa / PDF</button>
+      <div class="topbar-user"><div class="topbar-avatar">CT</div><span>Admin</span></div>
+    </header>
+
+    <main class="content-inner">
+      <div class="page-header">
+        <div>
+          <h2>Report Sicurezza sul Lavoro</h2>
+          <p id="report-date">Aggiornato al —</p>
+        </div>
+        <button class="btn btn-outline btn-sm no-print" onclick="window.print()">🖨️ Esporta PDF</button>
+      </div>
+
+      <!-- KPI globale -->
+      <div class="stat-grid mb-3" id="report-kpi"></div>
+
+      <!-- Due colonne: grafici -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem" class="two-cols">
+        <!-- Stato corsi per reparto -->
+        <div class="card">
+          <div class="card-header"><h3>📚 Corsi di formazione per reparto</h3></div>
+          <div class="card-body">
+            <div class="bar-chart" id="chart-reparti"></div>
+          </div>
+        </div>
+        <!-- Stato visite -->
+        <div class="card">
+          <div class="card-header"><h3>🏥 Stato sorveglianza sanitaria</h3></div>
+          <div class="card-body">
+            <div id="visite-chart-wrap"></div>
+            <div style="margin-top:1rem">
+              <div style="font-size:.8rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:.6rem">Giudizi di idoneità</div>
+              <div id="giudizi-chart"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabella lavoratori con problemi -->
+      <div class="card mb-3">
+        <div class="card-header">
+          <h3>⚠️ Lavoratori con scadenze critiche</h3>
+          <span class="badge badge-danger" id="critici-count">0</span>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Lavoratore</th>
+                <th>Mansione</th>
+                <th>Reparto</th>
+                <th>Corsi scaduti</th>
+                <th>Visite scadute</th>
+                <th>Prossima scadenza</th>
+                <th>Criticità</th>
+              </tr>
+            </thead>
+            <tbody id="critici-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tabella completa conformità -->
+      <div class="card">
+        <div class="card-header"><h3>📋 Stato di conformità per lavoratore</h3></div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Lavoratore</th>
+                <th>Reparto</th>
+                <th>N° Corsi</th>
+                <th>Corsi validi</th>
+                <th>Corsi in scad.</th>
+                <th>Corsi scaduti</th>
+                <th>Ultima visita</th>
+                <th>Giudizio</th>
+                <th>Conformità</th>
+              </tr>
+            </thead>
+            <tbody id="conformita-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const now = new Date();
+  document.getElementById('report-date').textContent =
+    'Aggiornato al ' + now.toLocaleDateString('it-IT', {day:'2-digit',month:'long',year:'numeric'}) +
+    ' alle ' + now.toLocaleTimeString('it-IT', {hour:'2-digit',minute:'2-digit'});
+
+  renderKPI();
+  renderChartReparti();
+  renderVisiteChart();
+  renderCritici();
+  renderConformita();
+});
+
+function renderKPI() {
+  const s = DB.getStats();
+  const totScaduti = s.corsiScaduti + s.visiteScadute;
+  const totInSc = s.corsiInScadenza + s.visiteInScadenza;
+  const totValidi = s.corsiValidi + s.visiteValide;
+  const tot = totScaduti + totInSc + totValidi || 1;
+  const pctOk = Math.round((totValidi / tot) * 100);
+  document.getElementById('report-kpi').innerHTML = `
+    <div class="stat-card primary"><div class="stat-icon">👷</div><div class="stat-body"><div class="stat-value">${s.lavoratori}</div><div class="stat-label">Lavoratori attivi</div></div></div>
+    <div class="stat-card success"><div class="stat-icon">📊</div><div class="stat-body"><div class="stat-value">${pctOk}%</div><div class="stat-label">Tasso conformità</div></div></div>
+    <div class="stat-card warning"><div class="stat-icon">⚠️</div><div class="stat-body"><div class="stat-value">${totInSc}</div><div class="stat-label">In scadenza (60gg)</div></div></div>
+    <div class="stat-card danger"><div class="stat-icon">🔴</div><div class="stat-body"><div class="stat-value">${totScaduti}</div><div class="stat-label">Da rinnovare subito</div></div></div>
+  `;
+}
+
+function renderChartReparti() {
+  const reparti = {};
+  DB.getLavoratori().filter(l => l.attivo).forEach(l => {
+    if (!reparti[l.reparto]) reparti[l.reparto] = { validi: 0, inSc: 0, scaduti: 0 };
+    DB.getCorsi().filter(c => c.lavoratoreId === l.id).forEach(c => {
+      const st = DB.getStatus(c.dataScadenza);
+      if (st === 'valido') reparti[l.reparto].validi++;
+      else if (st === 'in-scadenza') reparti[l.reparto].inSc++;
+      else reparti[l.reparto].scaduti++;
+    });
+  });
+
+  document.getElementById('chart-reparti').innerHTML = Object.entries(reparti).map(([rep, v]) => {
+    const tot = v.validi + v.inSc + v.scaduti || 1;
+    const pV = (v.validi/tot*100).toFixed(0);
+    const pI = (v.inSc/tot*100).toFixed(0);
+    const pS = (v.scaduti/tot*100).toFixed(0);
+    return `
+      <div class="bar-row">
+        <div class="bar-label" title="${rep}">${rep}</div>
+        <div class="bar-track">
+          <div class="bar-seg" style="width:${pV}%;background:var(--success)" title="${v.validi} validi"></div>
+          <div class="bar-seg" style="width:${pI}%;background:#d97706" title="${v.inSc} in scadenza"></div>
+          <div class="bar-seg" style="width:${pS}%;background:var(--danger)" title="${v.scaduti} scaduti"></div>
+        </div>
+        <div class="bar-row-val">${tot}</div>
+      </div>`;
+  }).join('') || '<p class="text-muted text-sm">Nessun dato</p>';
+}
+
+function renderVisiteChart() {
+  const visite = DB.getVisite();
+  const v = DB.getStats();
+  const tot = v.visiteValide + v.visiteInScadenza + v.visiteScadute || 1;
+  const bars = [
+    { label: '✅ Valide', val: v.visiteValide, color: 'var(--success)', bg: 'bg-success' },
+    { label: '⚠️ In scadenza', val: v.visiteInScadenza, color: '#d97706', bg: 'bg-warning' },
+    { label: '🔴 Scadute', val: v.visiteScadute, color: 'var(--danger)', bg: 'bg-danger' },
+  ];
+  document.getElementById('visite-chart-wrap').innerHTML = bars.map(b => `
+    <div style="margin-bottom:.6rem">
+      <div style="display:flex;justify-content:space-between;font-size:.83rem;margin-bottom:.25rem">
+        <span>${b.label}</span><strong>${b.val}</strong>
+      </div>
+      <div class="progress">
+        <div class="progress-bar ${b.bg}" style="width:${(b.val/tot*100).toFixed(0)}%"></div>
+      </div>
+    </div>`).join('');
+
+  // Giudizi
+  const giudizi = {};
+  visite.forEach(v => {
+    const g = v.giudizio || 'Non specificato';
+    giudizi[g] = (giudizi[g] || 0) + 1;
+  });
+  document.getElementById('giudizi-chart').innerHTML = Object.entries(giudizi).map(([g, n]) =>
+    `<div style="display:flex;justify-content:space-between;align-items:center;padding:.3rem 0;border-bottom:1px solid var(--border);font-size:.85rem">
+      <span>${giudizioBadge(g)}</span><strong>${n}</strong>
+    </div>`).join('');
+}
+
+function renderCritici() {
+  const lavoratori = DB.getLavoratori().filter(l => l.attivo);
+  const critici = [];
+  lavoratori.forEach(l => {
+    const cScaduti = DB.getCorsi().filter(c => c.lavoratoreId === l.id && DB.getStatus(c.dataScadenza) === 'scaduto');
+    const vScadute = DB.getVisite().filter(v => v.lavoratoreId === l.id && DB.getStatus(v.dataScadenza) === 'scaduto');
+    if (cScaduti.length > 0 || vScadute.length > 0) {
+      const prossimaCorsi = DB.getCorsi().filter(c => c.lavoratoreId === l.id && DB.getStatus(c.dataScadenza) !== 'scaduto')
+        .sort((a,b)=>new Date(a.dataScadenza)-new Date(b.dataScadenza))[0];
+      critici.push({ l, cScaduti: cScaduti.length, vScadute: vScadute.length, prossima: prossimaCorsi?.dataScadenza });
+    }
+  });
+  document.getElementById('critici-count').textContent = critici.length;
+  document.getElementById('critici-tbody').innerHTML = critici.length ? critici.map(({ l, cScaduti, vScadute, prossima }) => `
+    <tr>
+      <td><strong>${l.cognome} ${l.nome}</strong></td>
+      <td>${l.mansione}</td>
+      <td>${l.reparto}</td>
+      <td>${cScaduti > 0 ? `<span class="badge badge-danger">${cScaduti}</span>` : '—'}</td>
+      <td>${vScadute > 0 ? `<span class="badge badge-danger">${vScadute}</span>` : '—'}</td>
+      <td>${prossima ? fmtDate(prossima) : '—'}</td>
+      <td><span class="badge badge-danger">Intervento richiesto</span></td>
+    </tr>`).join('')
+    : '<tr class="table-empty"><td colspan="7">Nessun lavoratore con scadenze critiche ✅</td></tr>';
+}
+
+function renderConformita() {
+  const lavoratori = DB.getLavoratori().filter(l => l.attivo)
+    .sort((a,b) => a.cognome.localeCompare(b.cognome));
+
+  document.getElementById('conformita-tbody').innerHTML = lavoratori.map(l => {
+    const corsi = DB.getCorsi().filter(c => c.lavoratoreId === l.id);
+    const cValidi = corsi.filter(c => DB.getStatus(c.dataScadenza) === 'valido').length;
+    const cInSc = corsi.filter(c => DB.getStatus(c.dataScadenza) === 'in-scadenza').length;
+    const cScad = corsi.filter(c => DB.getStatus(c.dataScadenza) === 'scaduto').length;
+    const visite = DB.getVisite().filter(v => v.lavoratoreId === l.id)
+      .sort((a,b) => new Date(b.dataVisita) - new Date(a.dataVisita));
+    const ultimaVisita = visite[0];
+    const conforme = cScad === 0 && (!ultimaVisita || DB.getStatus(ultimaVisita.dataScadenza) !== 'scaduto');
+    return `
+      <tr>
+        <td><strong>${l.cognome} ${l.nome}</strong></td>
+        <td>${l.reparto}</td>
+        <td>${corsi.length}</td>
+        <td>${cValidi > 0 ? `<span class="badge badge-success">${cValidi}</span>` : '0'}</td>
+        <td>${cInSc > 0 ? `<span class="badge badge-warning">${cInSc}</span>` : '0'}</td>
+        <td>${cScad > 0 ? `<span class="badge badge-danger">${cScad}</span>` : '0'}</td>
+        <td>${ultimaVisita ? fmtDate(ultimaVisita.dataVisita) : '—'}</td>
+        <td>${ultimaVisita ? giudizioBadge(ultimaVisita.giudizio) : '—'}</td>
+        <td>${conforme
+          ? '<span class="badge badge-success">✓ Conforme</span>'
+          : '<span class="badge badge-danger">✗ Non conforme</span>'}</td>
+      </tr>`;
+  }).join('') || '<tr class="table-empty"><td colspan="9">Nessun lavoratore</td></tr>';
+}
+</script>
+<style>
+@media (max-width: 700px) { .two-cols { grid-template-columns: 1fr !important; } }
+</style>
+</body>
+</html>

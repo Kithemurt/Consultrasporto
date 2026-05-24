@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Corsi di Formazione — Consultrasporto</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">SF</div>
+      <div><div class="logo-text">Consultrasporto</div><div class="logo-sub">Scadenziario Formazione</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Principale</div>
+      <a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="lavoratori.html" class="nav-link"><span class="nav-icon">👷</span> Lavoratori</a>
+      <a href="corsi.html" class="nav-link"><span class="nav-icon">📚</span> Corsi di Formazione</a>
+      <a href="visite.html" class="nav-link"><span class="nav-icon">🏥</span> Visite Mediche</a>
+      <a href="scadenze.html" class="nav-link"><span class="nav-icon">📅</span> Scadenziario</a>
+      <div class="sidebar-section" style="margin-top:.5rem">Analisi</div>
+      <a href="report.html" class="nav-link"><span class="nav-icon">📊</span> Report</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 · D.Lgs. 81/08</div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle btn" id="sidebar-toggle">☰</button>
+      <div class="topbar-title">Corsi di Formazione</div>
+      <div class="topbar-user"><div class="topbar-avatar">CT</div><span>Admin</span></div>
+    </header>
+
+    <main class="content-inner">
+      <div class="page-header">
+        <div>
+          <h2>Corsi di Formazione</h2>
+          <p>Registro attestati e scadenze corsi D.Lgs. 81/08</p>
+        </div>
+        <button class="btn btn-primary" onclick="apriNuovo()">+ Nuovo corso</button>
+      </div>
+
+      <!-- KPI -->
+      <div class="stat-grid mb-3" id="corsi-stats"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="toolbar" style="flex:1">
+            <div class="search-box">
+              <input type="text" class="form-control" id="search-corsi" placeholder="Cerca lavoratore, tipo corso, ente…" oninput="renderTable()">
+            </div>
+            <select class="filter-select" id="filter-status" onchange="renderTable()">
+              <option value="">Tutti gli stati</option>
+              <option value="valido">Validi</option>
+              <option value="in-scadenza">In scadenza</option>
+              <option value="scaduto">Scaduti</option>
+            </select>
+            <select class="filter-select" id="filter-tipo" onchange="renderTable()">
+              <option value="">Tutti i tipi</option>
+            </select>
+          </div>
+          <span class="badge badge-secondary" id="corsi-count">0</span>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Lavoratore</th>
+                <th>Tipo corso</th>
+                <th>Ente formatore</th>
+                <th>Data frequenza</th>
+                <th>Scadenza</th>
+                <th>Ore</th>
+                <th>N° Attestato</th>
+                <th>Stato</th>
+                <th>Azioni</th>
+              </tr>
+            </thead>
+            <tbody id="corsi-tbody">
+              <tr class="table-empty"><td colspan="9">Caricamento…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal Corso -->
+<div class="modal" id="modal-corso">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modal-corso-title">Nuovo corso di formazione</h3>
+      <button class="modal-close btn" onclick="closeModal('modal-corso')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="corso-id">
+      <div class="form-group">
+        <label class="form-label">Lavoratore <span class="req">*</span></label>
+        <select class="form-select" id="corso-lavoratore"></select>
+      </div>
+      <div class="form-grid">
+        <div class="form-group form-full">
+          <label class="form-label">Tipo corso <span class="req">*</span></label>
+          <select class="form-select" id="corso-tipo">
+            <option value="">— Seleziona tipo —</option>
+            <option>Formazione Generale (4 ore)</option>
+            <option>Formazione Generale (8 ore)</option>
+            <option>Formazione Specifica Basso Rischio</option>
+            <option>Formazione Specifica Medio Rischio</option>
+            <option>Formazione Specifica Alto Rischio</option>
+            <option>Formazione Preposti (8 ore)</option>
+            <option>Formazione Dirigenti (16 ore)</option>
+            <option>Primo Soccorso Gruppo A</option>
+            <option>Primo Soccorso Gruppo B</option>
+            <option>Primo Soccorso Gruppo C</option>
+            <option>Antincendio Rischio Basso</option>
+            <option>Antincendio Rischio Medio</option>
+            <option>Antincendio Rischio Alto</option>
+            <option>Carrelli Elevatori</option>
+            <option>PLE (Piattaforme Lavoro Elevabili)</option>
+            <option>Lavori in Quota</option>
+            <option>Ponteggi</option>
+            <option>Gru</option>
+            <option>RLS (Aggiornamento annuale)</option>
+            <option>Altro (specificare nelle note)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ente formatore</label>
+          <input type="text" class="form-control" id="corso-ente" placeholder="es. INAIL, Croce Rossa…">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ore corso</label>
+          <input type="number" class="form-control" id="corso-ore" min="1" placeholder="es. 8">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data frequenza <span class="req">*</span></label>
+          <input type="date" class="form-control" id="corso-data">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data scadenza <span class="req">*</span></label>
+          <input type="date" class="form-control" id="corso-scadenza">
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">N° Attestato</label>
+          <input type="text" class="form-control" id="corso-attestato" placeholder="es. ATT-2025-001">
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Note</label>
+          <textarea class="form-control" id="corso-note" rows="2" placeholder="Note aggiuntive…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-corso')">Annulla</button>
+      <button class="btn btn-primary" onclick="salvaCorso()">💾 Salva</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  renderStats();
+  populateTipoFilter();
+  renderTable();
+});
+
+function renderStats() {
+  const corsi = DB.getCorsi();
+  const validi = corsi.filter(c => DB.getStatus(c.dataScadenza) === 'valido').length;
+  const inSc = corsi.filter(c => DB.getStatus(c.dataScadenza) === 'in-scadenza').length;
+  const scaduti = corsi.filter(c => DB.getStatus(c.dataScadenza) === 'scaduto').length;
+  document.getElementById('corsi-stats').innerHTML = `
+    <div class="stat-card primary"><div class="stat-icon">📚</div><div class="stat-body"><div class="stat-value">${corsi.length}</div><div class="stat-label">Totale corsi</div></div></div>
+    <div class="stat-card success"><div class="stat-icon">✅</div><div class="stat-body"><div class="stat-value">${validi}</div><div class="stat-label">Validi</div></div></div>
+    <div class="stat-card warning"><div class="stat-icon">⚠️</div><div class="stat-body"><div class="stat-value">${inSc}</div><div class="stat-label">In scadenza (60gg)</div></div></div>
+    <div class="stat-card danger"><div class="stat-icon">🔴</div><div class="stat-body"><div class="stat-value">${scaduti}</div><div class="stat-label">Scaduti</div></div></div>
+  `;
+}
+
+function populateTipoFilter() {
+  const tipi = [...new Set(DB.getCorsi().map(c => c.tipoCorso))].sort();
+  const sel = document.getElementById('filter-tipo');
+  sel.innerHTML = '<option value="">Tutti i tipi</option>' + tipi.map(t => `<option>${t}</option>`).join('');
+}
+
+function renderTable() {
+  const q = document.getElementById('search-corsi').value.toLowerCase();
+  const st = document.getElementById('filter-status').value;
+  const tipo = document.getElementById('filter-tipo').value;
+
+  let rows = DB.getCorsi().filter(c => {
+    const lav = DB.getLavoratore(c.lavoratoreId);
+    const lavName = lav ? `${lav.cognome} ${lav.nome} ${lav.mansione}`.toLowerCase() : '';
+    const match = `${lavName} ${c.tipoCorso} ${c.ente || ''}`.toLowerCase().includes(q);
+    const stMatch = !st || DB.getStatus(c.dataScadenza) === st;
+    const tMatch = !tipo || c.tipoCorso === tipo;
+    return match && stMatch && tMatch;
+  });
+
+  rows.sort((a, b) => new Date(a.dataScadenza) - new Date(b.dataScadenza));
+  document.getElementById('corsi-count').textContent = rows.length;
+
+  document.getElementById('corsi-tbody').innerHTML = rows.length ? rows.map(c => {
+    const lav = DB.getLavoratore(c.lavoratoreId);
+    const lavName = lav ? `${lav.cognome} ${lav.nome}` : '—';
+    const status = DB.getStatus(c.dataScadenza);
+    const days = DB.getDaysToExpiry(c.dataScadenza);
+    return `
+      <tr>
+        <td><strong>${lavName}</strong><br><span class="text-xs text-muted">${lav ? lav.mansione : ''}</span></td>
+        <td>${c.tipoCorso}</td>
+        <td>${c.ente || '—'}</td>
+        <td>${fmtDate(c.dataFrequenza)}</td>
+        <td>${fmtDate(c.dataScadenza)}<br><span class="text-xs ${status === 'scaduto' ? 'text-muted' : ''}" style="${status==='in-scadenza'?'color:var(--warning)':''}">${daysLabel(days)}</span></td>
+        <td>${c.ore || '—'}</td>
+        <td>${c.attestatoNum || '—'}</td>
+        <td>${statusBadge(status)}</td>
+        <td>
+          <div class="btn-group">
+            <button class="btn btn-ghost btn-sm" onclick="editCorso('${c.id}')" title="Modifica">✏️</button>
+            <button class="btn btn-outline-danger btn-sm" onclick="eliminaCorso('${c.id}')" title="Elimina">🗑</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('') : '<tr class="table-empty"><td colspan="9">Nessun corso trovato</td></tr>';
+}
+
+function apriNuovo() {
+  resetForm();
+  populateLavoratoriSelect('corso-lavoratore');
+  openModal('modal-corso');
+}
+
+function salvaCorso() {
+  const lavoratoreId = document.getElementById('corso-lavoratore').value;
+  const tipoCorso = document.getElementById('corso-tipo').value;
+  const dataFrequenza = document.getElementById('corso-data').value;
+  const dataScadenza = document.getElementById('corso-scadenza').value;
+  if (!lavoratoreId || !tipoCorso || !dataFrequenza || !dataScadenza) {
+    showToast('Compila tutti i campi obbligatori', 'error'); return;
+  }
+  const data = {
+    lavoratoreId, tipoCorso,
+    ente: document.getElementById('corso-ente').value.trim(),
+    ore: parseInt(document.getElementById('corso-ore').value) || null,
+    dataFrequenza, dataScadenza,
+    attestatoNum: document.getElementById('corso-attestato').value.trim(),
+    note: document.getElementById('corso-note').value.trim()
+  };
+  const id = document.getElementById('corso-id').value;
+  if (id) { DB.updateCorso(id, data); showToast('Corso aggiornato'); }
+  else { DB.addCorso(data); showToast('Corso aggiunto'); }
+  closeModal('modal-corso');
+  renderStats();
+  populateTipoFilter();
+  renderTable();
+}
+
+function editCorso(id) {
+  const c = DB.getCorsi().find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('modal-corso-title').textContent = 'Modifica corso';
+  document.getElementById('corso-id').value = c.id;
+  populateLavoratoriSelect('corso-lavoratore', c.lavoratoreId);
+  document.getElementById('corso-tipo').value = c.tipoCorso;
+  document.getElementById('corso-ente').value = c.ente || '';
+  document.getElementById('corso-ore').value = c.ore || '';
+  document.getElementById('corso-data').value = c.dataFrequenza || '';
+  document.getElementById('corso-scadenza').value = c.dataScadenza || '';
+  document.getElementById('corso-attestato').value = c.attestatoNum || '';
+  document.getElementById('corso-note').value = c.note || '';
+  openModal('modal-corso');
+}
+
+function resetForm() {
+  document.getElementById('modal-corso-title').textContent = 'Nuovo corso di formazione';
+  ['corso-id','corso-ente','corso-ore','corso-data','corso-scadenza','corso-attestato','corso-note'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('corso-tipo').value = '';
+}
+
+function eliminaCorso(id) {
+  if (!confirmDelete('Eliminare questo record corso?')) return;
+  DB.deleteCorso(id);
+  showToast('Corso eliminato', 'warning');
+  renderStats();
+  populateTipoFilter();
+  renderTable();
+}
+</script>
+</body>
+</html>

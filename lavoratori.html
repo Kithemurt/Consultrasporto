@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lavoratori — Consultrasporto</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">SF</div>
+      <div>
+        <div class="logo-text">Consultrasporto</div>
+        <div class="logo-sub">Scadenziario Formazione</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Principale</div>
+      <a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="lavoratori.html" class="nav-link"><span class="nav-icon">👷</span> Lavoratori</a>
+      <a href="corsi.html" class="nav-link"><span class="nav-icon">📚</span> Corsi di Formazione</a>
+      <a href="visite.html" class="nav-link"><span class="nav-icon">🏥</span> Visite Mediche</a>
+      <a href="scadenze.html" class="nav-link"><span class="nav-icon">📅</span> Scadenziario</a>
+      <div class="sidebar-section" style="margin-top:.5rem">Analisi</div>
+      <a href="report.html" class="nav-link"><span class="nav-icon">📊</span> Report</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 · D.Lgs. 81/08</div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle btn" id="sidebar-toggle">☰</button>
+      <div class="topbar-title">Lavoratori</div>
+      <div class="topbar-user">
+        <div class="topbar-avatar">CT</div>
+        <span>Admin</span>
+      </div>
+    </header>
+
+    <main class="content-inner">
+
+      <div class="page-header">
+        <div>
+          <h2>Lavoratori</h2>
+          <p>Anagrafica e profili dei dipendenti</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-lavoratore')">+ Nuovo lavoratore</button>
+      </div>
+
+      <!-- Stat mini -->
+      <div class="stat-grid mb-3" id="lav-stats"></div>
+
+      <!-- Table card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="toolbar" style="flex:1">
+            <div class="search-box">
+              <input type="text" class="form-control" id="search-lav" placeholder="Cerca per nome, mansione, reparto…" oninput="renderTable()">
+            </div>
+            <select class="filter-select" id="filter-reparto" onchange="renderTable()">
+              <option value="">Tutti i reparti</option>
+            </select>
+            <select class="filter-select" id="filter-attivo" onchange="renderTable()">
+              <option value="">Tutti</option>
+              <option value="1">Attivi</option>
+              <option value="0">Inattivi</option>
+            </select>
+          </div>
+          <span class="badge badge-secondary" id="lav-count">0</span>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Nome e Cognome</th>
+                <th>Mansione</th>
+                <th>Reparto</th>
+                <th>Data Assunzione</th>
+                <th>Rischi</th>
+                <th>Stato</th>
+                <th>Azioni</th>
+              </tr>
+            </thead>
+            <tbody id="lav-tbody">
+              <tr class="table-empty"><td colspan="7">Caricamento…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Modal: Aggiungi / Modifica lavoratore -->
+<div class="modal" id="modal-lavoratore">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modal-lav-title">Nuovo lavoratore</h3>
+      <button class="modal-close btn" onclick="closeModal('modal-lavoratore')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="lav-id">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Nome <span class="req">*</span></label>
+          <input type="text" class="form-control" id="lav-nome" placeholder="Mario">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cognome <span class="req">*</span></label>
+          <input type="text" class="form-control" id="lav-cognome" placeholder="Rossi">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Codice Fiscale</label>
+          <input type="text" class="form-control" id="lav-cf" placeholder="RSSMRA80A01H501U" style="text-transform:uppercase">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data assunzione</label>
+          <input type="date" class="form-control" id="lav-assunzione">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mansione <span class="req">*</span></label>
+          <input type="text" class="form-control" id="lav-mansione" placeholder="es. Autista, Operaio, Tecnico…">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Reparto <span class="req">*</span></label>
+          <input type="text" class="form-control" id="lav-reparto" placeholder="es. Trasporti, Produzione…">
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Fattori di rischio (separati da virgola)</label>
+          <input type="text" class="form-control" id="lav-rischi" placeholder="es. Rumore, Vibrazione, VDT">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Stato</label>
+          <select class="form-select" id="lav-attivo">
+            <option value="1">Attivo</option>
+            <option value="0">Inattivo</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-lavoratore')">Annulla</button>
+      <button class="btn btn-primary" onclick="salvaLavoratore()">💾 Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Dettaglio lavoratore -->
+<div class="modal" id="modal-dettaglio">
+  <div class="modal-box modal-lg">
+    <div class="modal-header">
+      <h3 id="det-title">Dettaglio lavoratore</h3>
+      <button class="modal-close btn" onclick="closeModal('modal-dettaglio')">✕</button>
+    </div>
+    <div class="modal-body" id="det-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-dettaglio')">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+let lavoriEdit = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderStats();
+  populateRepartoFilter();
+  renderTable();
+});
+
+function renderStats() {
+  const all = DB.getLavoratori();
+  const attivi = all.filter(l => l.attivo).length;
+  document.getElementById('lav-stats').innerHTML = `
+    <div class="stat-card primary">
+      <div class="stat-icon">👷</div>
+      <div class="stat-body"><div class="stat-value">${attivi}</div><div class="stat-label">Lavoratori attivi</div></div>
+    </div>
+    <div class="stat-card success">
+      <div class="stat-icon">📋</div>
+      <div class="stat-body"><div class="stat-value">${all.length}</div><div class="stat-label">Totale anagrafica</div></div>
+    </div>`;
+}
+
+function populateRepartoFilter() {
+  const reparti = [...new Set(DB.getLavoratori().map(l => l.reparto))].sort();
+  const sel = document.getElementById('filter-reparto');
+  sel.innerHTML = '<option value="">Tutti i reparti</option>' +
+    reparti.map(r => `<option value="${r}">${r}</option>`).join('');
+}
+
+function renderTable() {
+  const q = document.getElementById('search-lav').value.toLowerCase();
+  const reparto = document.getElementById('filter-reparto').value;
+  const attivo = document.getElementById('filter-attivo').value;
+
+  let rows = DB.getLavoratori().filter(l => {
+    const match = `${l.nome} ${l.cognome} ${l.mansione} ${l.reparto}`.toLowerCase().includes(q);
+    const rMatch = !reparto || l.reparto === reparto;
+    const aMatch = attivo === '' || (attivo === '1' ? l.attivo : !l.attivo);
+    return match && rMatch && aMatch;
+  });
+
+  document.getElementById('lav-count').textContent = rows.length;
+
+  const corsi = DB.getCorsi();
+  const visite = DB.getVisite();
+
+  document.getElementById('lav-tbody').innerHTML = rows.length ? rows.map(l => {
+    const lCorsi = corsi.filter(c => c.lavoratoreId === l.id);
+    const lVisite = visite.filter(v => v.lavoratoreId === l.id);
+    const scadutiC = lCorsi.filter(c => DB.getStatus(c.dataScadenza) === 'scaduto').length;
+    const scadutiV = lVisite.filter(v => DB.getStatus(v.dataScadenza) === 'scaduto').length;
+    const totScaduti = scadutiC + scadutiV;
+    const statoLabel = !l.attivo ? '<span class="badge badge-secondary">Inattivo</span>'
+      : totScaduti > 0 ? `<span class="badge badge-danger">⚠ ${totScaduti} scaduti</span>`
+      : '<span class="badge badge-success">OK</span>';
+    return `
+      <tr>
+        <td><strong>${l.cognome} ${l.nome}</strong><br><span class="text-xs text-muted">${l.codiceFiscale || ''}</span></td>
+        <td>${l.mansione}</td>
+        <td>${l.reparto}</td>
+        <td>${fmtDate(l.dataAssunzione)}</td>
+        <td><span class="text-sm text-muted">${(l.rischi||[]).join(', ') || '—'}</span></td>
+        <td>${statoLabel}</td>
+        <td>
+          <div class="btn-group">
+            <button class="btn btn-ghost btn-sm" onclick="vediDettaglio('${l.id}')" title="Dettaglio">👁</button>
+            <button class="btn btn-ghost btn-sm" onclick="editLavoratore('${l.id}')" title="Modifica">✏️</button>
+            <button class="btn btn-outline-danger btn-sm" onclick="eliminaLavoratore('${l.id}')" title="Elimina">🗑</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('') : '<tr class="table-empty"><td colspan="7">Nessun lavoratore trovato</td></tr>';
+}
+
+function salvaLavoratore() {
+  const nome = document.getElementById('lav-nome').value.trim();
+  const cognome = document.getElementById('lav-cognome').value.trim();
+  const mansione = document.getElementById('lav-mansione').value.trim();
+  const reparto = document.getElementById('lav-reparto').value.trim();
+  if (!nome || !cognome || !mansione || !reparto) { showToast('Compila i campi obbligatori', 'error'); return; }
+
+  const data = {
+    nome, cognome, mansione, reparto,
+    codiceFiscale: document.getElementById('lav-cf').value.trim().toUpperCase(),
+    dataAssunzione: document.getElementById('lav-assunzione').value,
+    rischi: document.getElementById('lav-rischi').value.split(',').map(s => s.trim()).filter(Boolean),
+    attivo: document.getElementById('lav-attivo').value === '1'
+  };
+
+  const id = document.getElementById('lav-id').value;
+  if (id) { DB.updateLavoratore(id, data); showToast('Lavoratore aggiornato'); }
+  else { DB.addLavoratore(data); showToast('Lavoratore aggiunto'); }
+
+  closeModal('modal-lavoratore');
+  renderStats();
+  populateRepartoFilter();
+  renderTable();
+}
+
+function editLavoratore(id) {
+  const l = DB.getLavoratore(id);
+  if (!l) return;
+  document.getElementById('modal-lav-title').textContent = 'Modifica lavoratore';
+  document.getElementById('lav-id').value = l.id;
+  document.getElementById('lav-nome').value = l.nome;
+  document.getElementById('lav-cognome').value = l.cognome;
+  document.getElementById('lav-cf').value = l.codiceFiscale || '';
+  document.getElementById('lav-assunzione').value = l.dataAssunzione || '';
+  document.getElementById('lav-mansione').value = l.mansione;
+  document.getElementById('lav-reparto').value = l.reparto;
+  document.getElementById('lav-rischi').value = (l.rischi || []).join(', ');
+  document.getElementById('lav-attivo').value = l.attivo ? '1' : '0';
+  openModal('modal-lavoratore');
+}
+
+function resetForm() {
+  document.getElementById('modal-lav-title').textContent = 'Nuovo lavoratore';
+  ['lav-id','lav-nome','lav-cognome','lav-cf','lav-assunzione','lav-mansione','lav-reparto','lav-rischi'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('lav-attivo').value = '1';
+}
+
+document.getElementById('modal-lavoratore').addEventListener('click', e => {
+  if (e.target === e.currentTarget) { closeModal('modal-lavoratore'); resetForm(); }
+});
+
+document.querySelector('[onclick="openModal(\'modal-lavoratore\')"]').addEventListener('click', resetForm);
+
+function eliminaLavoratore(id) {
+  const l = DB.getLavoratore(id);
+  if (!confirmDelete(`Eliminare ${l.nome} ${l.cognome} e tutti i suoi record? Questa azione non è reversibile.`)) return;
+  DB.deleteLavoratore(id);
+  showToast('Lavoratore eliminato', 'warning');
+  renderStats();
+  populateRepartoFilter();
+  renderTable();
+}
+
+function vediDettaglio(id) {
+  const l = DB.getLavoratore(id);
+  if (!l) return;
+  const corsi = DB.getCorsi().filter(c => c.lavoratoreId === id);
+  const visite = DB.getVisite().filter(v => v.lavoratoreId === id);
+  document.getElementById('det-title').textContent = `${l.cognome} ${l.nome} — ${l.mansione}`;
+  document.getElementById('det-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+      <div><span class="text-xs text-muted">REPARTO</span><div class="fw-semibold">${l.reparto}</div></div>
+      <div><span class="text-xs text-muted">DATA ASSUNZIONE</span><div class="fw-semibold">${fmtDate(l.dataAssunzione)}</div></div>
+      <div><span class="text-xs text-muted">CODICE FISCALE</span><div class="fw-semibold">${l.codiceFiscale||'—'}</div></div>
+      <div><span class="text-xs text-muted">STATO</span><div>${l.attivo ? '<span class="badge badge-success">Attivo</span>' : '<span class="badge badge-secondary">Inattivo</span>'}</div></div>
+      <div class="form-full" style="grid-column:1/-1"><span class="text-xs text-muted">RISCHI</span><div class="fw-semibold">${(l.rischi||[]).join(', ')||'—'}</div></div>
+    </div>
+    <h4 style="margin-bottom:.75rem">📚 Corsi di Formazione (${corsi.length})</h4>
+    ${corsi.length ? `<div class="table-wrap"><table class="table">
+      <thead><tr><th>Tipo corso</th><th>Scadenza</th><th>Stato</th></tr></thead>
+      <tbody>${corsi.map(c=>`<tr><td>${c.tipoCorso}</td><td>${fmtDate(c.dataScadenza)}</td><td>${statusBadge(DB.getStatus(c.dataScadenza))}</td></tr>`).join('')}</tbody>
+    </table></div>` : '<p class="text-muted text-sm">Nessun corso registrato</p>'}
+    <h4 style="margin:.75rem 0">🏥 Visite Mediche (${visite.length})</h4>
+    ${visite.length ? `<div class="table-wrap"><table class="table">
+      <thead><tr><th>Tipo visita</th><th>Scadenza</th><th>Giudizio</th><th>Stato</th></tr></thead>
+      <tbody>${visite.map(v=>`<tr><td>${v.tipoVisita}</td><td>${fmtDate(v.dataScadenza)}</td><td>${giudizioBadge(v.giudizio)}</td><td>${statusBadge(DB.getStatus(v.dataScadenza))}</td></tr>`).join('')}</tbody>
+    </table></div>` : '<p class="text-muted text-sm">Nessuna visita registrata</p>'}
+  `;
+  openModal('modal-dettaglio');
+}
+</script>
+</body>
+</html>

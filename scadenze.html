@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scadenziario — Consultrasporto</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .view-toggle .btn { border-radius: 0; }
+    .view-toggle .btn:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+    .view-toggle .btn:last-child { border-radius: 0 var(--radius) var(--radius) 0; }
+    .view-toggle .btn.active-view { background: var(--primary); color: #fff; border-color: var(--primary); }
+    #list-view, #cal-view { display: none; }
+    #list-view.active-panel, #cal-view.active-panel { display: block; }
+    .urgency-row td:first-child { border-left: 4px solid transparent; }
+    .urgency-row.scaduto td:first-child { border-left-color: var(--danger); }
+    .urgency-row.in-scadenza td:first-child { border-left-color: #d97706; }
+    .urgency-row.valido td:first-child { border-left-color: var(--success); }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">SF</div>
+      <div><div class="logo-text">Consultrasporto</div><div class="logo-sub">Scadenziario Formazione</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Principale</div>
+      <a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="lavoratori.html" class="nav-link"><span class="nav-icon">👷</span> Lavoratori</a>
+      <a href="corsi.html" class="nav-link"><span class="nav-icon">📚</span> Corsi di Formazione</a>
+      <a href="visite.html" class="nav-link"><span class="nav-icon">🏥</span> Visite Mediche</a>
+      <a href="scadenze.html" class="nav-link"><span class="nav-icon">📅</span> Scadenziario</a>
+      <div class="sidebar-section" style="margin-top:.5rem">Analisi</div>
+      <a href="report.html" class="nav-link"><span class="nav-icon">📊</span> Report</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 · D.Lgs. 81/08</div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle btn" id="sidebar-toggle">☰</button>
+      <div class="topbar-title">Scadenziario</div>
+      <div class="topbar-user"><div class="topbar-avatar">CT</div><span>Admin</span></div>
+    </header>
+
+    <main class="content-inner">
+      <div class="page-header">
+        <div>
+          <h2>Scadenziario</h2>
+          <p>Vista unificata di tutte le scadenze: corsi e visite mediche</p>
+        </div>
+        <div class="view-toggle btn-group">
+          <button class="btn btn-outline btn-sm active-view" id="btn-list" onclick="setView('list')">☰ Lista</button>
+          <button class="btn btn-outline btn-sm" id="btn-cal" onclick="setView('cal')">📅 Calendario</button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="card mb-3">
+        <div class="card-body" style="padding:.85rem 1.25rem">
+          <div class="toolbar">
+            <div class="search-box" style="flex:2">
+              <input type="text" class="form-control" id="search-sc" placeholder="Cerca lavoratore, tipo…" oninput="renderList()">
+            </div>
+            <select class="filter-select" id="filter-periodo" onchange="renderList(); renderCalendar()">
+              <option value="30">Prossimi 30 giorni</option>
+              <option value="60">Prossimi 60 giorni</option>
+              <option value="90" selected>Prossimi 90 giorni</option>
+              <option value="180">Prossimi 180 giorni</option>
+              <option value="0">Tutti (inclusi scaduti)</option>
+            </select>
+            <select class="filter-select" id="filter-tipo-sc" onchange="renderList()">
+              <option value="">Corsi e visite</option>
+              <option value="corso">Solo corsi</option>
+              <option value="visita">Solo visite</option>
+            </select>
+            <select class="filter-select" id="filter-stato-sc" onchange="renderList()">
+              <option value="">Tutti gli stati</option>
+              <option value="scaduto">Scaduti</option>
+              <option value="in-scadenza">In scadenza</option>
+              <option value="valido">Validi</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alert summary -->
+      <div id="sc-alert" class="mb-3"></div>
+
+      <!-- LIST VIEW -->
+      <div id="list-view" class="active-panel">
+        <div class="card">
+          <div class="card-header">
+            <h3 id="list-title">Scadenze</h3>
+            <span class="badge badge-secondary" id="sc-count">0</span>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Lavoratore</th>
+                  <th>Tipo</th>
+                  <th>Corso / Visita</th>
+                  <th>Data scadenza</th>
+                  <th>Giorni mancanti</th>
+                  <th>Stato</th>
+                  <th>Azione</th>
+                </tr>
+              </thead>
+              <tbody id="sc-tbody">
+                <tr class="table-empty"><td colspan="7">Caricamento…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- CALENDAR VIEW -->
+      <div id="cal-view">
+        <div class="card">
+          <div class="card-header">
+            <div class="cal-header" style="width:100%">
+              <button class="btn btn-ghost btn-sm" onclick="calPrev()">← Mese prec.</button>
+              <span class="cal-month" id="cal-month-label"></span>
+              <button class="btn btn-ghost btn-sm" onclick="calNext()">Mese succ. →</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="cal-grid" id="cal-daynames">
+              <div class="cal-day-name">Lun</div>
+              <div class="cal-day-name">Mar</div>
+              <div class="cal-day-name">Mer</div>
+              <div class="cal-day-name">Gio</div>
+              <div class="cal-day-name">Ven</div>
+              <div class="cal-day-name">Sab</div>
+              <div class="cal-day-name">Dom</div>
+            </div>
+            <div class="cal-grid" id="cal-body" style="margin-top:2px"></div>
+          </div>
+          <div class="card-footer">
+            <div style="display:flex;gap:1.5rem;flex-wrap:wrap;font-size:.82rem">
+              <span><span class="badge badge-success">●</span> Valido</span>
+              <span><span class="badge badge-warning">●</span> In scadenza (≤60gg)</span>
+              <span><span class="badge badge-danger">●</span> Scaduto</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+let currentView = 'list';
+let calYear, calMonth;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const now = new Date();
+  calYear = now.getFullYear();
+  calMonth = now.getMonth();
+  renderList();
+  renderAlert();
+});
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('list-view').classList.toggle('active-panel', v === 'list');
+  document.getElementById('cal-view').classList.toggle('active-panel', v === 'cal');
+  document.getElementById('btn-list').classList.toggle('active-view', v === 'list');
+  document.getElementById('btn-cal').classList.toggle('active-view', v === 'cal');
+  if (v === 'cal') renderCalendar();
+}
+
+function getAllScadenze(giorni) {
+  const all = [];
+  const today = new Date();
+  const cutoff = new Date();
+  if (giorni > 0) cutoff.setDate(cutoff.getDate() + giorni);
+
+  DB.getCorsi().forEach(c => {
+    const d = new Date(c.dataScadenza);
+    if (giorni === 0 || d <= cutoff) {
+      const lav = DB.getLavoratore(c.lavoratoreId);
+      all.push({
+        tipo: 'corso', tipoLabel: c.tipoCorso,
+        lavoratore: lav ? `${lav.cognome} ${lav.nome}` : '—',
+        lavMansione: lav ? lav.mansione : '',
+        dataScadenza: c.dataScadenza,
+        status: DB.getStatus(c.dataScadenza),
+        giorni: DB.getDaysToExpiry(c.dataScadenza),
+        href: 'corsi.html'
+      });
+    }
+  });
+
+  DB.getVisite().forEach(v => {
+    const d = new Date(v.dataScadenza);
+    if (giorni === 0 || d <= cutoff) {
+      const lav = DB.getLavoratore(v.lavoratoreId);
+      all.push({
+        tipo: 'visita', tipoLabel: v.tipoVisita,
+        lavoratore: lav ? `${lav.cognome} ${lav.nome}` : '—',
+        lavMansione: lav ? lav.mansione : '',
+        dataScadenza: v.dataScadenza,
+        status: DB.getStatus(v.dataScadenza),
+        giorni: DB.getDaysToExpiry(v.dataScadenza),
+        href: 'visite.html'
+      });
+    }
+  });
+
+  all.sort((a, b) => new Date(a.dataScadenza) - new Date(b.dataScadenza));
+  return all;
+}
+
+function renderList() {
+  const q = document.getElementById('search-sc').value.toLowerCase();
+  const periodo = parseInt(document.getElementById('filter-periodo').value);
+  const tipo = document.getElementById('filter-tipo-sc').value;
+  const stato = document.getElementById('filter-stato-sc').value;
+
+  let items = getAllScadenze(periodo).filter(it => {
+    const match = `${it.lavoratore} ${it.tipoLabel}`.toLowerCase().includes(q);
+    const tMatch = !tipo || it.tipo === tipo;
+    const sMatch = !stato || it.status === stato;
+    return match && tMatch && sMatch;
+  });
+
+  const label = periodo === 0 ? 'Tutte le scadenze' : `Scadenze nei prossimi ${periodo} giorni`;
+  document.getElementById('list-title').textContent = label;
+  document.getElementById('sc-count').textContent = items.length;
+
+  document.getElementById('sc-tbody').innerHTML = items.length ? items.map(it => `
+    <tr class="urgency-row ${it.status}">
+      <td><strong>${it.lavoratore}</strong><br><span class="text-xs text-muted">${it.lavMansione}</span></td>
+      <td>${tipoBadge(it.tipo)}</td>
+      <td>${it.tipoLabel}</td>
+      <td>${fmtDate(it.dataScadenza)}</td>
+      <td>
+        <span style="font-weight:700;color:${it.giorni < 0 ? 'var(--danger)' : it.giorni <= 60 ? '#d97706' : 'var(--success)'}">
+          ${daysLabel(it.giorni)}
+        </span>
+      </td>
+      <td>${statusBadge(it.status)}</td>
+      <td><a href="${it.href}" class="btn btn-ghost btn-sm">Gestisci →</a></td>
+    </tr>`).join('')
+    : '<tr class="table-empty"><td colspan="7">Nessuna scadenza nel periodo selezionato ✅</td></tr>';
+}
+
+function renderAlert() {
+  const scaduti = getAllScadenze(0).filter(x => x.status === 'scaduto').length;
+  const imm30 = getAllScadenze(30).filter(x => x.status === 'in-scadenza').length;
+  const parts = [];
+  if (scaduti > 0) parts.push(`<strong>${scaduti} scadenze già scadute</strong> richiedono rinnovo immediato`);
+  if (imm30 > 0) parts.push(`<strong>${imm30} scadenze entro 30 giorni</strong>`);
+  if (parts.length > 0) {
+    document.getElementById('sc-alert').innerHTML = `<div class="alert alert-danger">⚠️ ${parts.join(' · ')}</div>`;
+  }
+}
+
+// ─── Calendar ─────────────────────────────────────────────────────────────────
+
+function calPrev() {
+  calMonth--;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+function calNext() {
+  calMonth++;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const MESI = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+  document.getElementById('cal-month-label').textContent = `${MESI[calMonth]} ${calYear}`;
+
+  const allItems = getAllScadenze(0);
+  const byDay = {};
+  allItems.forEach(it => {
+    const k = it.dataScadenza;
+    if (!byDay[k]) byDay[k] = [];
+    byDay[k].push(it);
+  });
+
+  const today = new Date();
+  const firstDay = new Date(calYear, calMonth, 1);
+  const lastDay = new Date(calYear, calMonth + 1, 0);
+  let startDow = firstDay.getDay(); // 0=Sun
+  startDow = startDow === 0 ? 6 : startDow - 1; // Mon=0
+
+  let cells = '';
+  // Prev month padding
+  for (let i = 0; i < startDow; i++) {
+    const d = new Date(calYear, calMonth, 1 - startDow + i);
+    cells += `<div class="cal-cell other-month"><div class="cal-date">${d.getDate()}</div></div>`;
+  }
+  // Current month
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = today.getDate()===d && today.getMonth()===calMonth && today.getFullYear()===calYear;
+    const events = byDay[dateStr] || [];
+    const evHtml = events.slice(0,3).map(it =>
+      `<div class="cal-event ${it.status}" title="${it.lavoratore}: ${it.tipoLabel}">${it.lavoratore.split(' ')[0]}</div>`
+    ).join('') + (events.length > 3 ? `<div class="cal-event in-scadenza">+${events.length-3} altri</div>` : '');
+    cells += `<div class="cal-cell ${isToday?'today':''}"><div class="cal-date">${d}</div>${evHtml}</div>`;
+  }
+  // Next month padding
+  const totalCells = startDow + lastDay.getDate();
+  const remaining = Math.ceil(totalCells / 7) * 7 - totalCells;
+  for (let i = 1; i <= remaining; i++) {
+    cells += `<div class="cal-cell other-month"><div class="cal-date">${i}</div></div>`;
+  }
+
+  document.getElementById('cal-body').innerHTML = cells;
+}
+</script>
+</body>
+</html>

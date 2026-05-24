@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visite Mediche — Consultrasporto</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">SF</div>
+      <div><div class="logo-text">Consultrasporto</div><div class="logo-sub">Scadenziario Formazione</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Principale</div>
+      <a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="lavoratori.html" class="nav-link"><span class="nav-icon">👷</span> Lavoratori</a>
+      <a href="corsi.html" class="nav-link"><span class="nav-icon">📚</span> Corsi di Formazione</a>
+      <a href="visite.html" class="nav-link"><span class="nav-icon">🏥</span> Visite Mediche</a>
+      <a href="scadenze.html" class="nav-link"><span class="nav-icon">📅</span> Scadenziario</a>
+      <div class="sidebar-section" style="margin-top:.5rem">Analisi</div>
+      <a href="report.html" class="nav-link"><span class="nav-icon">📊</span> Report</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 · D.Lgs. 81/08</div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle btn" id="sidebar-toggle">☰</button>
+      <div class="topbar-title">Visite Mediche</div>
+      <div class="topbar-user"><div class="topbar-avatar">CT</div><span>Admin</span></div>
+    </header>
+
+    <main class="content-inner">
+      <div class="page-header">
+        <div>
+          <h2>Visite Mediche</h2>
+          <p>Sorveglianza sanitaria dei lavoratori — giudizi e scadenze</p>
+        </div>
+        <button class="btn btn-primary" onclick="apriNuova()">+ Nuova visita</button>
+      </div>
+
+      <!-- KPI -->
+      <div class="stat-grid mb-3" id="visite-stats"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="toolbar" style="flex:1">
+            <div class="search-box">
+              <input type="text" class="form-control" id="search-visite" placeholder="Cerca lavoratore, tipo visita, medico…" oninput="renderTable()">
+            </div>
+            <select class="filter-select" id="filter-status" onchange="renderTable()">
+              <option value="">Tutti gli stati</option>
+              <option value="valido">Valide</option>
+              <option value="in-scadenza">In scadenza</option>
+              <option value="scaduto">Scadute</option>
+            </select>
+            <select class="filter-select" id="filter-giudizio" onchange="renderTable()">
+              <option value="">Tutti i giudizi</option>
+              <option value="Idoneo">Idoneo</option>
+              <option value="Idoneo con prescrizioni">Con prescrizioni</option>
+              <option value="Idoneo con limitazioni">Con limitazioni</option>
+              <option value="Non idoneo temporaneo">Non idoneo temp.</option>
+              <option value="Non idoneo permanente">Non idoneo perm.</option>
+            </select>
+          </div>
+          <span class="badge badge-secondary" id="visite-count">0</span>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Lavoratore</th>
+                <th>Tipo visita</th>
+                <th>Medico competente</th>
+                <th>Data visita</th>
+                <th>Prossima scadenza</th>
+                <th>Giudizio</th>
+                <th>Stato</th>
+                <th>Azioni</th>
+              </tr>
+            </thead>
+            <tbody id="visite-tbody">
+              <tr class="table-empty"><td colspan="8">Caricamento…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Non idonei alert -->
+      <div id="non-idonei-alert" class="mt-3"></div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Modal Visita -->
+<div class="modal" id="modal-visita">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modal-vis-title">Nuova visita medica</h3>
+      <button class="modal-close btn" onclick="closeModal('modal-visita')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="vis-id">
+      <div class="form-group">
+        <label class="form-label">Lavoratore <span class="req">*</span></label>
+        <select class="form-select" id="vis-lavoratore"></select>
+      </div>
+      <div class="form-grid">
+        <div class="form-group form-full">
+          <label class="form-label">Tipo visita <span class="req">*</span></label>
+          <select class="form-select" id="vis-tipo">
+            <option value="">— Seleziona tipo —</option>
+            <option>Visita Preventiva</option>
+            <option>Visita Periodica Annuale</option>
+            <option>Visita Periodica Biennale</option>
+            <option>Visita Periodica Quinquennale</option>
+            <option>Visita al Rientro da Assenza</option>
+            <option>Visita Straordinaria</option>
+            <option>Visita in Occasione di Cambio Mansione</option>
+          </select>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Medico competente</label>
+          <input type="text" class="form-control" id="vis-medico" placeholder="Dott. / Dott.ssa …">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data visita <span class="req">*</span></label>
+          <input type="date" class="form-control" id="vis-data">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data prossima scadenza <span class="req">*</span></label>
+          <input type="date" class="form-control" id="vis-scadenza">
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Giudizio di idoneità <span class="req">*</span></label>
+          <select class="form-select" id="vis-giudizio">
+            <option value="">— Seleziona giudizio —</option>
+            <option>Idoneo</option>
+            <option>Idoneo con prescrizioni</option>
+            <option>Idoneo con limitazioni</option>
+            <option>Non idoneo temporaneo</option>
+            <option>Non idoneo permanente</option>
+          </select>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Note</label>
+          <textarea class="form-control" id="vis-note" rows="2" placeholder="Prescrizioni, limitazioni, osservazioni…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-visita')">Annulla</button>
+      <button class="btn btn-primary" onclick="salvaVisita()">💾 Salva</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  renderStats();
+  renderTable();
+  renderNonIdonei();
+});
+
+function renderStats() {
+  const visite = DB.getVisite();
+  const valide = visite.filter(v => DB.getStatus(v.dataScadenza) === 'valido').length;
+  const inSc = visite.filter(v => DB.getStatus(v.dataScadenza) === 'in-scadenza').length;
+  const scadute = visite.filter(v => DB.getStatus(v.dataScadenza) === 'scaduto').length;
+  document.getElementById('visite-stats').innerHTML = `
+    <div class="stat-card primary"><div class="stat-icon">🏥</div><div class="stat-body"><div class="stat-value">${visite.length}</div><div class="stat-label">Totale visite</div></div></div>
+    <div class="stat-card success"><div class="stat-icon">✅</div><div class="stat-body"><div class="stat-value">${valide}</div><div class="stat-label">Valide</div></div></div>
+    <div class="stat-card warning"><div class="stat-icon">⚠️</div><div class="stat-body"><div class="stat-value">${inSc}</div><div class="stat-label">In scadenza (60gg)</div></div></div>
+    <div class="stat-card danger"><div class="stat-icon">🔴</div><div class="stat-body"><div class="stat-value">${scadute}</div><div class="stat-label">Scadute</div></div></div>
+  `;
+}
+
+function renderTable() {
+  const q = document.getElementById('search-visite').value.toLowerCase();
+  const st = document.getElementById('filter-status').value;
+  const gi = document.getElementById('filter-giudizio').value;
+
+  let rows = DB.getVisite().filter(v => {
+    const lav = DB.getLavoratore(v.lavoratoreId);
+    const lavName = lav ? `${lav.cognome} ${lav.nome} ${lav.mansione}`.toLowerCase() : '';
+    const match = `${lavName} ${v.tipoVisita} ${v.medico || ''}`.toLowerCase().includes(q);
+    const stMatch = !st || DB.getStatus(v.dataScadenza) === st;
+    const gMatch = !gi || v.giudizio === gi;
+    return match && stMatch && gMatch;
+  });
+
+  rows.sort((a, b) => new Date(a.dataScadenza) - new Date(b.dataScadenza));
+  document.getElementById('visite-count').textContent = rows.length;
+
+  document.getElementById('visite-tbody').innerHTML = rows.length ? rows.map(v => {
+    const lav = DB.getLavoratore(v.lavoratoreId);
+    const lavName = lav ? `${lav.cognome} ${lav.nome}` : '—';
+    const status = DB.getStatus(v.dataScadenza);
+    const days = DB.getDaysToExpiry(v.dataScadenza);
+    return `
+      <tr>
+        <td><strong>${lavName}</strong><br><span class="text-xs text-muted">${lav ? lav.mansione : ''}</span></td>
+        <td>${v.tipoVisita}</td>
+        <td>${v.medico || '—'}</td>
+        <td>${fmtDate(v.dataVisita)}</td>
+        <td>${fmtDate(v.dataScadenza)}<br><span class="text-xs" style="${status==='in-scadenza'?'color:var(--warning)':''}">${daysLabel(days)}</span></td>
+        <td>${giudizioBadge(v.giudizio)}</td>
+        <td>${statusBadge(status)}</td>
+        <td>
+          <div class="btn-group">
+            <button class="btn btn-ghost btn-sm" onclick="editVisita('${v.id}')" title="Modifica">✏️</button>
+            <button class="btn btn-outline-danger btn-sm" onclick="eliminaVisita('${v.id}')" title="Elimina">🗑</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('') : '<tr class="table-empty"><td colspan="8">Nessuna visita trovata</td></tr>';
+}
+
+function renderNonIdonei() {
+  const nonIdonei = DB.getVisite().filter(v =>
+    v.giudizio && (v.giudizio.includes('Non idoneo') || v.giudizio.includes('limitazioni') || v.giudizio.includes('prescrizioni'))
+  );
+  if (nonIdonei.length === 0) return;
+  document.getElementById('non-idonei-alert').innerHTML = `
+    <div class="alert alert-warning">
+      ⚠️ <strong>${nonIdonei.length} lavoratori con giudizio di idoneità condizionato o negativo</strong> — verificare le limitazioni operative.
+    </div>`;
+}
+
+function apriNuova() {
+  resetForm();
+  populateLavoratoriSelect('vis-lavoratore');
+  openModal('modal-visita');
+}
+
+function salvaVisita() {
+  const lavoratoreId = document.getElementById('vis-lavoratore').value;
+  const tipoVisita = document.getElementById('vis-tipo').value;
+  const dataVisita = document.getElementById('vis-data').value;
+  const dataScadenza = document.getElementById('vis-scadenza').value;
+  const giudizio = document.getElementById('vis-giudizio').value;
+  if (!lavoratoreId || !tipoVisita || !dataVisita || !dataScadenza || !giudizio) {
+    showToast('Compila tutti i campi obbligatori', 'error'); return;
+  }
+  const data = {
+    lavoratoreId, tipoVisita,
+    medico: document.getElementById('vis-medico').value.trim(),
+    dataVisita, dataScadenza, giudizio,
+    note: document.getElementById('vis-note').value.trim()
+  };
+  const id = document.getElementById('vis-id').value;
+  if (id) { DB.updateVisita(id, data); showToast('Visita aggiornata'); }
+  else { DB.addVisita(data); showToast('Visita aggiunta'); }
+  closeModal('modal-visita');
+  renderStats();
+  renderTable();
+  renderNonIdonei();
+}
+
+function editVisita(id) {
+  const v = DB.getVisite().find(x => x.id === id);
+  if (!v) return;
+  document.getElementById('modal-vis-title').textContent = 'Modifica visita';
+  document.getElementById('vis-id').value = v.id;
+  populateLavoratoriSelect('vis-lavoratore', v.lavoratoreId);
+  document.getElementById('vis-tipo').value = v.tipoVisita;
+  document.getElementById('vis-medico').value = v.medico || '';
+  document.getElementById('vis-data').value = v.dataVisita || '';
+  document.getElementById('vis-scadenza').value = v.dataScadenza || '';
+  document.getElementById('vis-giudizio').value = v.giudizio || '';
+  document.getElementById('vis-note').value = v.note || '';
+  openModal('modal-visita');
+}
+
+function resetForm() {
+  document.getElementById('modal-vis-title').textContent = 'Nuova visita medica';
+  ['vis-id','vis-medico','vis-data','vis-scadenza','vis-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('vis-tipo').value = '';
+  document.getElementById('vis-giudizio').value = '';
+}
+
+function eliminaVisita(id) {
+  if (!confirmDelete('Eliminare questo record visita?')) return;
+  DB.deleteVisita(id);
+  showToast('Visita eliminata', 'warning');
+  renderStats();
+  renderTable();
+  renderNonIdonei();
+}
+</script>
+</body>
+</html>
